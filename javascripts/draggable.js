@@ -27,8 +27,9 @@ Draggable = MBX.JsModel.create("Draggable", {
    
    handleMouseMove: function (evt) {
        console.log('mousemove');
-       if (this.get("currentlyDragging")) {
-           console.dir(evt);
+       var draggable = this.get("currentlyDragging");
+       if (draggable) {
+           draggable.setPosition(evt.pageX, evt.pageY);
        }
    },
    
@@ -39,6 +40,14 @@ Draggable = MBX.JsModel.create("Draggable", {
        }
    },
    
+   subscribeToMouseMove: function () {
+       document.body.observe("mousemove", this.handleMouseMove.bind(this));
+   },
+   
+   unsubscribeMouseMove: function () {
+       document.body.stopObserving("mousemove");
+   },
+   
    instanceMethods: {
        beforeCreate: function () {
            this.set("uiElement", $(this.get("id")));
@@ -47,20 +56,23 @@ Draggable = MBX.JsModel.create("Draggable", {
        startDrag: function () {
            this.get("uiElement").absolutize();
            this.parentClass.set("currentlyDragging", this);
+           this.parentClass.subscribeToMouseMove();
            console.log('set parent classes currentlyDragging');
        },
        
        stopDrag: function () {
            this.parentClass.set("currentlyDragging", null);
+           this.parentClass.unsubscribeMouseMove();
+       },
+       
+       setPosition: function (x, y) {
+           this.get("uiElement").setStyle({left: x, top: y});
        }
    },
    
    initialize: function () {
        MBX.EventHandler.subscribe(".draggable", "mousedown", this.startDrag.bind(this));
-       MBX.EventHandler.onDomReady(function () {
-           MBX.EventHandler.subscribe(document.body, "mousemove", this.handleMouseMove.bind(this));
-           MBX.EventHandler.subscribe(document.body, "mouseup", this.handleMouseUp.bind(this));
-       }.bind(this));
+       MBX.EventHandler.subscribe(".jc", "mouseup", this.handleMouseUp.bind(this));
    }
     
 });
