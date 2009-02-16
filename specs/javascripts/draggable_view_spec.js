@@ -1,14 +1,14 @@
 Screw.Unit(function () {
-    describe("DraggableView", function () {
+    describe("JC.DraggableView", function () {
         var draggable;
         before(function() {
             TH.insertDomMock("draggable");
             TH.simulateEvent("mousedown", $("draggable"));
-            draggable = Draggable.find("draggable");
+            draggable = JC.Draggable.find("draggable");
         });
         
-        it("should listen to Draggable", function () {
-            expect(DraggableView.model).to(equal, Draggable);
+        it("should listen to JC.Draggable", function () {
+            expect(JC.DraggableView.model).to(equal, JC.Draggable);
         });
         
         describe("changing currentLocation", function () {

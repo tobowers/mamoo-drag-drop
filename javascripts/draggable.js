@@ -1,4 +1,8 @@
-Draggable = MBX.JsModel.create("Draggable", {
+if (!("JC" in window)) {
+    JC = {};
+}
+
+JC.Draggable = MBX.JsModel.create("Draggable", {
    primaryKey: 'id',
    
    elementFromEvent: function (evt) {

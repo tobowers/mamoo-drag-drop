@@ -1,5 +1,5 @@
 Screw.Unit(function () {
-    describe("Draggable", function () {
+    describe("JC.Draggable", function () {
         var draggable;
         before(function() {
             TH.insertDomMock("draggable");
@@ -18,7 +18,7 @@ Screw.Unit(function () {
             describe("the created draggable object", function () {
                 var draggableInstance;
                 before(function() {
-                    draggableInstance = Draggable.find(draggable.id);
+                    draggableInstance = JC.Draggable.find(draggable.id);
                 });
                 
                 it("should create a draggable object", function () {
@@ -30,7 +30,7 @@ Screw.Unit(function () {
                 });
                 
                 it("should get assigned to currentlyDragging", function () {
-                    expect(Draggable.get("currentlyDragging")).to(equal, draggableInstance);
+                    expect(JC.Draggable.get("currentlyDragging")).to(equal, draggableInstance);
                 });
                 
                 it("should assign the original location", function () {
@@ -61,7 +61,7 @@ Screw.Unit(function () {
             var draggableInstance;
             before(function () {
                 TH.simulateEvent("mousedown", draggable);
-                draggableInstance = Draggable.get("currentlyDragging");
+                draggableInstance = JC.Draggable.get("currentlyDragging");
                 originalPosition = draggableInstance.get("currentLocation");
             });
             
@@ -96,7 +96,7 @@ Screw.Unit(function () {
             });
             
             it("should unassign currentlyDragging", function () {
-                expect(Draggable.get("currentlyDragging")).to(be_null);
+                expect(JC.Draggable.get("currentlyDragging")).to(be_null);
             });
         });
         
