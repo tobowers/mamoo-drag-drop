@@ -6,7 +6,7 @@ Screw.Unit(function () {
         });
         
         after(function () {
-            JC.Draggable.set("currentlyDragging", null);
+            //JC.Draggable.set("currentlyDragging", null);
         });
         
         it("should have a primaryKey of id", function () {

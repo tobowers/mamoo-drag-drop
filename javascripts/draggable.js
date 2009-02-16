@@ -80,12 +80,13 @@ JC.Draggable = MBX.JsModel.create("Draggable", {
                'x': x,
                'y': y
            });
+           this.fireEvent("start_dragging");
        },
        
        stopDrag: function () {
            this.parentClass.set("currentlyDragging", null);
            this.parentClass.unsubscribeMouseMove();
-           MBX.EventHandler.fireCustom(this.get("uiElement"), "draggable_new_position", {draggable: this});
+           this.fireEvent("new_position");
        },
        
        updatePositionFromMouseMove: function (x, y) {
@@ -101,6 +102,14 @@ JC.Draggable = MBX.JsModel.create("Draggable", {
                x: x,
                y: y
            });
+       },
+       
+       fireEvent: function (evtType, opts) {
+           evtType = "draggable_" + evtType;
+           opts = opts || {};
+           opts.draggable = this;
+           MBX.EventHandler.fireCustom(this, evtType, opts);
+           MBX.EventHandler.fireCustom(this.get("uiElement"), evtType, opts);
        }
    },
    
