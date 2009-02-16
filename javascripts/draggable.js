@@ -4,7 +4,7 @@ Draggable = MBX.JsModel.create("Draggable", {
    elementFromEvent: function (evt) {
        var el = evt.target;
        if (!el.hasClassName("draggable")) {
-           el = el.up("draggable");
+           el = el.up(".draggable");
        }
        return el;
    },
@@ -18,34 +18,39 @@ Draggable = MBX.JsModel.create("Draggable", {
        }
    },
    
-   startDrag: function (evt) {
-       console.log("mousedown");
+   handleMouseDown: function (evt) {
+       evt.stop();
+       //console.log("mousedown");
        var el = this.elementFromEvent(evt);
        var obj = this.findOrCreateDraggable(el);
-       obj.startDrag();
+       obj.startDrag(evt.pageX, evt.pageY);
    },
    
    handleMouseMove: function (evt) {
-       console.log('mousemove');
+       //console.log('mousemove');
        var draggable = this.get("currentlyDragging");
        if (draggable) {
-           draggable.setPosition(evt.pageX, evt.pageY);
+           draggable.updatePositionFromMouseMove(evt.pageX, evt.pageY);
        }
    },
    
    handleMouseUp: function (evt) {
-       console.log('mouseup');
+       //console.log('mouseup');
        if (this.get("currentlyDragging")) {
            this.get("currentlyDragging").stopDrag();
        }
    },
    
    subscribeToMouseMove: function () {
-       document.body.observe("mousemove", this.handleMouseMove.bind(this));
+       document.observe("mousemove", this.handleMouseMove.bind(this));
    },
    
    unsubscribeMouseMove: function () {
-       document.body.stopObserving("mousemove");
+       document.stopObserving("mousemove");
+   },
+       
+   styleToInteger: function (style) {
+       return parseInt(style.sub("px", ""), 10);
    },
    
    instanceMethods: {
@@ -53,11 +58,24 @@ Draggable = MBX.JsModel.create("Draggable", {
            this.set("uiElement", $(this.get("id")));
        },
        
-       startDrag: function () {
-           this.get("uiElement").absolutize();
+       styleToInteger: function (style) {
+           return this.parentClass.styleToInteger(style);
+       },
+       
+       startDrag: function (x,y) {
+           var uiElement = this.get("uiElement");
+           uiElement.absolutize();
            this.parentClass.set("currentlyDragging", this);
            this.parentClass.subscribeToMouseMove();
-           console.log('set parent classes currentlyDragging');
+           this.set("originalLocation", {
+               x: this.styleToInteger(uiElement.getStyle("left")),
+               y: this.styleToInteger(uiElement.getStyle("top"))
+           });
+           this.set("currentLocation", this.get("originalLocation"));
+           this.set("mousePosition", {
+               'x': x,
+               'y': y
+           });
        },
        
        stopDrag: function () {
@@ -65,13 +83,24 @@ Draggable = MBX.JsModel.create("Draggable", {
            this.parentClass.unsubscribeMouseMove();
        },
        
-       setPosition: function (x, y) {
-           this.get("uiElement").setStyle({left: x, top: y});
+       updatePositionFromMouseMove: function (x, y) {
+           var mousePosition = this.get("mousePosition");
+           var currentLocation = this.get("currentLocation");
+           xDiff = x - mousePosition.x;
+           yDiff = y - mousePosition.y;
+           this.set("currentLocation", {
+               x: currentLocation.x + xDiff,
+               y: currentLocation.y + yDiff
+           });
+           this.set("mousePosition", {
+               x: x,
+               y: y
+           });
        }
    },
    
    initialize: function () {
-       MBX.EventHandler.subscribe(".draggable", "mousedown", this.startDrag.bind(this));
+       MBX.EventHandler.subscribe(".draggable", "mousedown", this.handleMouseDown.bind(this));
        MBX.EventHandler.subscribe(".jc", "mouseup", this.handleMouseUp.bind(this));
    }
     
