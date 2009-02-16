@@ -122,6 +122,9 @@ MBX.JsModel = (function () {
         */
         destroy: function () {
             delete this.parentClass.instanceCache[this.primaryKey()];
+            if (typeof this.beforeDestroy == 'function') {
+                this.beforeDestroy();
+            }
             MBX.EventHandler.fireCustom(MBX, this.parentClass.Event.destroyInstance, { object: this });
         },
         

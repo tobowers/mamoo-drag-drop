@@ -6,6 +6,10 @@ Screw.Unit(function () {
             draggable = $("draggable");
         });
         
+        after(function () {
+            TH.simulateEvent("mouseup", draggable);
+        });
+        
         describe("on mousedown", function () {
             before(function() {
                 TH.simulateEvent("mousedown", draggable);
@@ -60,6 +64,12 @@ Screw.Unit(function () {
             var originalPosition;
             var draggableInstance;
             before(function () {
+                TH.Mock.obj("JC.Draggable", {
+                    doLater: function (func) {
+                        console.log('this doLater');
+                        func();
+                    }
+                });
                 TH.simulateEvent("mousedown", draggable);
                 draggableInstance = JC.Draggable.get("currentlyDragging");
                 originalPosition = draggableInstance.get("currentLocation");
@@ -70,7 +80,7 @@ Screw.Unit(function () {
                     TH.mouseMove(10, 10);
                 });
                 
-                it("should add the mousemove ammount to the currentLocation x", function () {
+                it("should add the mousemove ammount to the currentLocation x", function (me) {
                     expect(draggableInstance.get("currentLocation").x).to(equal, originalPosition.x + 10);
                 });
                 
@@ -90,7 +100,12 @@ Screw.Unit(function () {
         });
         
         describe("mouseup", function () {
+            var evtCalled;
             before(function() {
+                evtCalled = false;
+                MBX.EventHandler.subscribe(JC.Draggable, "draggable_new_position", function (evt) {
+                    evtCalled = evt;
+                });
                 TH.simulateEvent("mousedown", draggable);
                 TH.simulateEvent("mouseup", document.body);
             });
@@ -98,6 +113,26 @@ Screw.Unit(function () {
             it("should unassign currentlyDragging", function () {
                 expect(JC.Draggable.get("currentlyDragging")).to(be_null);
             });
+            
+            describe('the event fired', function () {
+                it("should have the draggable", function () {
+                    expect(evtCalled.draggable).to(equal, JC.Draggable.find(draggable.id));
+                });
+            });
+            
+            describe("and then picking the object back up", function () {
+                before(function () {
+                    evtCalled = false;
+                    TH.simulateEvent("mousedown", draggable);
+                    TH.simulateEvent("mouseup", document.body);
+                });
+                
+                it("should still fire the event", function () {
+                    expect(evtCalled.draggable).to(equal, JC.Draggable.find(draggable.id));
+                });
+                
+            });
+            
         });
         
     });

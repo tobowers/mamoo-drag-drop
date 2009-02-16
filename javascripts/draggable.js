@@ -34,8 +34,21 @@ JC.Draggable = MBX.JsModel.create("Draggable", {
        //console.log('mousemove');
        var draggable = this.get("currentlyDragging");
        if (draggable) {
-           draggable.updatePositionFromMouseMove(evt.pageX, evt.pageY);
+           // this.doLater(function () {
+               var x = evt.pageX;
+               var y = evt.pageY;
+               draggable.updatePositionFromMouseMove(x,y);
+               MBX.EventHandler.fireCustom(this, "draggable_move", {
+                   draggable: draggable,
+                   x: x,
+                   y: y
+               });
+           // });
        }
+   },
+   
+   doLater: function (func) {
+       setTimeout(func, 0);
    },
    
    handleMouseUp: function (evt) {
@@ -110,6 +123,7 @@ JC.Draggable = MBX.JsModel.create("Draggable", {
            opts.draggable = this;
            MBX.EventHandler.fireCustom(this, evtType, opts);
            MBX.EventHandler.fireCustom(this.get("uiElement"), evtType, opts);
+           MBX.EventHandler.fireCustom(this.parentClass, evtType, opts);
        }
    },
    
