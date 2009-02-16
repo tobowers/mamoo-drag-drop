@@ -85,6 +85,7 @@ JC.Draggable = MBX.JsModel.create("Draggable", {
        stopDrag: function () {
            this.parentClass.set("currentlyDragging", null);
            this.parentClass.unsubscribeMouseMove();
+           MBX.EventHandler.fireCustom(this.get("uiElement"), "draggable_new_position", {draggable: this});
        },
        
        updatePositionFromMouseMove: function (x, y) {

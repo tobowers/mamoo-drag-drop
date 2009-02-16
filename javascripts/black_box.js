@@ -1,0 +1,1 @@
+JC.BlackBox = JC.FactoryItem("blackbox");

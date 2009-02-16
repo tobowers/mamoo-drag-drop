@@ -8,9 +8,26 @@
     <script type="text/javascript" charset="utf-8" src="javascripts/draggable.js"></script>
     <script type="text/javascript" charset="utf-8" src="javascripts/draggable_view.js"></script>
     
+    <script type="text/javascript" charset="utf-8" src="javascripts/object_factory.js"></script>
+    <script type="text/javascript" charset="utf-8" src="javascripts/factory_item.js"></script>
+    <script type="text/javascript" charset="utf-8" src="javascripts/black_box.js"></script>
+    
+    <style>
+      .blackbox {
+        height: 200px;
+        width: 200px;
+        background-color: black;
+      }
+      .blackbox_icon {
+        height: 50px;
+        width: 50px;
+        background-color: black;
+      }
+    </style>
   </head>
   <body style="width:100%;height:100%;" class="jc">
     <p class="draggable">I'm draggable yo!</p>
     <div class="draggable" style="height:20px;width:20px;background-color:black"></div>
+    <div class="object_factory object_factory_creates_BlackBox blackbox_icon"></div>
   </body>
 </html>
