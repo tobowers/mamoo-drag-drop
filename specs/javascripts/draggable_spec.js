@@ -114,10 +114,8 @@ Screw.Unit(function () {
                 expect(JC.Draggable.get("currentlyDragging")).to(be_null);
             });
             
-            describe('the event fired', function () {
-                it("should have the draggable", function () {
-                    expect(evtCalled.draggable).to(equal, JC.Draggable.find(draggable.id));
-                });
+            it("should fire an event with the draggable in it", function () {
+                expect(evtCalled.draggable).to(equal, JC.Draggable.find(draggable.id));
             });
             
             describe("and then picking the object back up", function () {
