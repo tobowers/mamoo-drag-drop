@@ -19,6 +19,8 @@ JC.FactoryItem = function (name, obj) {
 };
 
 JC.FactoryItem.template = {
+    primaryKey: 'id',
+    
     createAt: function (x,y) {
         return this.create({ currentLocation: {x: x, y:y }});
     },
@@ -44,10 +46,13 @@ JC.FactoryItem.template = {
     },
     
     instanceMethods: {
-        afterCreate: function () {
+        beforeCreate: function () {
             var uiElement = this.parentClass.createUi(this);
-            var currentLocation = this.get("currentLocation");
             this.set("uiElement", uiElement);
+            this.set('id', uiElement.identify());
+        },
+        
+        afterCreate: function () {
             this.subscribeToDraggableUpdates();
         },
         
@@ -58,6 +63,10 @@ JC.FactoryItem.template = {
         subscribeToDraggableUpdates: function () {
             var id = this.get("uiElement").identify();
             MBX.EventHandler.subscribe("#" + id, "draggable_new_position", this.handleNewPosition.bind(this));
+        },
+        
+        beforeDestroy: function () {
+            this.get('uiElement').remove();
         }
     }
     

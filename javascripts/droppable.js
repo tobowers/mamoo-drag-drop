@@ -19,23 +19,16 @@ JC.Droppable = MBX.JsModel.create("droppable", {
         }.bind(this));
     },
     
-    handleDraggingElement: function (evt) {
-        this.findAll().each(function (droppable) {
-            if (droppable.isWithinUi(evt.x, evt.y)) {
-                droppable.handleMouseover();
-            } else {
-                droppable.handleMouseout();
-            }
-        });
-    },
-    
     instanceMethods: {
         afterCreate: function () {
             var uiElement = $(this.get('id'));
             this.set("uiElement", uiElement);
+            
             this.set("offset", Element.cumulativeOffset(uiElement));
             this.set("offsetWidth", uiElement.offsetWidth);
             this.set("offsetHeight", uiElement.offsetHeight);
+            this.set("dropSubscription", MBX.EventHandler.subscribe(JC.Draggable, "draggable_new_position", this.handleDrop.bind(this)));
+            this.set("moveSubscription", MBX.EventHandler.subscribe(JC.Draggable, "draggable_move", this.handleDraggableMove.bind(this)));
         },
         
         isWithinUi: function (x,y) {
@@ -49,41 +42,30 @@ JC.Droppable = MBX.JsModel.create("droppable", {
                     x <  offset[0] + this.get("offsetWidth"));
         },
         
+        handleDraggableMove: function (evt) {
+            if (this.isWithinUi(evt.x, evt.y)) {
+                this.handleMouseover();
+            } else {
+                this.handleMouseout();
+            }
+        },
+        
         handleMouseover: function () {
-            if (JC.Draggable.get("currentlyDragging")) {
-                console.log("mouseover");
-                
+            if (JC.Draggable.get("currentlyDragging")) {                
                 this.get("uiElement").addClassName("draggable_over");
-                this.listenForDrop();
             }
         },
         
         handleMouseout: function () {
-            if (JC.Draggable.get("currentlyDragging")) {
-                console.log("mouseout");
-                
-                this.get("uiElement").removeClassName("draggable_over");
-                this.stopListeningForDrop();                
-            }
+            this.get("uiElement").removeClassName("draggable_over");
         },
         
-        handleDrop: function () {
-            console.log("drop");
-            this.fireEvent("dropped");
-        },
-        
-        listenForDrop: function () {
-            if (!this.get("dropSubscription")) {
-                this.set("dropSubscription", MBX.EventHandler.subscribe(JC.Draggable, "draggable_new_position", this.handleDrop.bind(this)));
-                this.set("itemToBeDropped", JC.Draggable.get("currentlyDragging"));
-            }
-        },
-        
-        stopListeningForDrop: function () {
-            var sub = this.get('dropSubscription');
-            if (sub) {
-                MBX.EventHandler.unsubscribe(sub);
-                this.set("itemToBeDropped", null);
+        handleDrop: function (evt) {
+            var draggable = evt.draggable;
+            var location = draggable.get("currentLocation");
+            if (this.isWithinUi(location.x, location.y)) {
+                this.fireEvent("dropped", { draggable: evt.draggable });
+                this.handleMouseout();
             }
         },
         
@@ -100,12 +82,15 @@ JC.Droppable = MBX.JsModel.create("droppable", {
             if (this.get("dropSubscription")) {
                 MBX.EventHandler.unsubscribe(this.get("dropSubscription"));
             }
+            
+            if(this.get('moveSubscription')) {
+                MBX.EventHandler.unsubscribe(this.get('moveSubscription'));
+            }
         }
     },
     
     initialize: function () {
         MBX.EventHandler.onDomReady(this.update.bind(this));
-        MBX.EventHandler.subscribe(JC.Draggable, "draggable_move", this.handleDraggingElement.bind(this));
     }
     
 });
